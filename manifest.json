@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "version": "1",
+    "name": "Easy Focus",
+    "action" : {
+        "default_popup": "index.html"
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "tabs",
+        "storage"
+    ]
+
+}
