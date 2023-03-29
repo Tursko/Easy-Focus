@@ -1,5 +1,5 @@
 const redirectUrl = chrome.runtime.getURL("focus.html");
-var isFocusActive = true;
+
 // TODO: remove PoC
 var aUrlList = ["https://www.theverge.com/"];
 
@@ -16,13 +16,16 @@ chrome.tabs.onActivated.addListener( (activeInfo) => {
 });
 
 function redirectTab(tab) {
-    if (isFocusActive && tab.url)
-    {
-        aUrlList.forEach(url => {
-            var regex = new RegExp(url, "g")
-            if (tab.url.search(regex) >= 0) {
-                chrome.tabs.update(tab.id, { url: redirectUrl });
-            }
-        });
-    }
+    chrome.storage.local.get("focusEnabled").then( (result) => {
+        let isFocusActive = result.focusEnabled;
+        if (isFocusActive && tab.url)
+        {
+            aUrlList.forEach(url => {
+                var regex = new RegExp(url, "g")
+                if (tab.url.search(regex) >= 0) {
+                    chrome.tabs.update(tab.id, { url: redirectUrl });
+                }
+            });
+        }
+    });
 }
