@@ -3,10 +3,7 @@ const browserUrlListId = 'urlList';
 // Local Storage
 const aLocalStorageUrlList = JSON.parse(localStorage.getItem(browserUrlListId));
 
-var aRestrictedSites = ["theverge.com"];
-let aUrlList = [];
-
-let redirectUrl = "https://google.com";
+let aRestrictedSites = [];
 
 // DOM Constants
 const enableFocusBtn = document.getElementById("enableFocusBtn");
@@ -17,7 +14,7 @@ const inputUrl = document.getElementById("inputUrl");
 const ulUrls = document.getElementById("ulUrls");
 
 if (aLocalStorageUrlList) {
-    aUrlList = aLocalStorageUrlList;
+    aRestrictedSites = aLocalStorageUrlList;
     renderUrlList();
 }
 
@@ -31,22 +28,26 @@ disableFocusBtn.addEventListener("click", function() {
 
 addUrlBtn.addEventListener("click", function() {
     if (inputUrl.value != "") {
-        aUrlList.push(inputUrl.value);
+        aRestrictedSites.push(inputUrl.value);
         inputUrl.value = "";
     }
-    updateLocalStorageUrlList();
+    updateChromeStorageRestrictedSites();
     renderUrlList();
 });
 
 function renderUrlList () {
     let urlInnerHtml = '';
-    for (let i = 0; i < aUrlList.length; i++) {
-        urlInnerHtml += `<li>${aUrlList[i]}</li>`;
+    for (let i = 0; i < aRestrictedSites.length; i++) {
+        urlInnerHtml += `<li>${aRestrictedSites[i]}</li>`;
     }
 
     ulUrls.innerHTML = urlInnerHtml;
 }
 
 function updateLocalStorageUrlList () {
-    localStorage.setItem(browserUrlListId, JSON.stringify(aUrlList));
+    localStorage.setItem(browserUrlListId, JSON.stringify(aRestrictedSites));
+}
+
+function updateChromeStorageRestrictedSites () {
+    chrome.storage.sync.set({ restrictedSites: JSON.stringify(aRestrictedSites) });
 }
