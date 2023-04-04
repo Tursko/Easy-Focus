@@ -6,6 +6,8 @@ let aRestrictedSites = [];
 let show = "";
 let hide = "none";
 
+const redirectUrl = chrome.runtime.getURL("focus.html");
+
 // DOM Constants
 const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
@@ -30,6 +32,7 @@ function popupLoad() {
 function enableFocusMode() {
     chrome.storage.local.set({ focusEnabled: true }).then( () => {     
         hidePopupElements();
+        refreshCurrentTab();
     });
 }
 
@@ -37,6 +40,28 @@ function disableFocusMode() {
     chrome.storage.local.set({ focusEnabled: false }).then( () => {
         showPopupElements();
     });
+}
+
+function refreshCurrentTab() {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    chrome.tabs.query(queryOptions).then( (tabs) => {
+        if (tabs[0].url) {
+            let currentTab = tabs[0];
+            getRestrictedSites().then((aRestrictedSites) => {
+                aRestrictedSites.forEach(url => {
+                    let regex = new RegExp(url, "g")
+                    if (currentTab.url.search(regex) >= 0) {
+                        chrome.tabs.update(currentTab.id, { url: redirectUrl });
+                    }
+                });
+            });
+        }
+    });
+}
+
+async function getRestrictedSites() {
+    let result = await chrome.storage.sync.get("restrictedSites");
+    return JSON.parse(result.restrictedSites);
 }
 
 function hidePopupElements() {
