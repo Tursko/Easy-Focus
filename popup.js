@@ -1,9 +1,10 @@
-// Globals
-const browserUrlListId = 'urlList';
 // Local Storage
-const aLocalStorageUrlList = JSON.parse(localStorage.getItem(browserUrlListId));
+//const aLocalStorageUrlList = JSON.parse(localStorage.getItem(browserUrlListId));
 
 let aRestrictedSites = [];
+
+let show = "";
+let hide = "none";
 
 // DOM Constants
 const enableFocusBtn = document.getElementById("enableFocusBtn");
@@ -39,13 +40,18 @@ function disableFocusMode() {
 }
 
 function hidePopupElements() {
-    enableFocusBtn.style.display = "none";
-    disableFocusBtn.style.display = "";
+    enableFocusBtn.style.display = hide;
+    disableFocusBtn.style.display = show;
+    inputUrl.style.display = hide;
+    addUrlBtn.style.display = hide;
 }
 
 function showPopupElements() {
-    enableFocusBtn.style.display = "";
-    disableFocusBtn.style.display = "none";
+    enableFocusBtn.style.display = show;
+    disableFocusBtn.style.display = hide;
+    inputUrl.style.display = show;
+    addUrlBtn.style.display = show;
+
 }
 
 addUrlBtn.addEventListener("click", function() {
@@ -64,10 +70,6 @@ function renderUrlList () {
     }
 
     ulUrls.innerHTML = urlInnerHtml;
-}
-
-function updateLocalStorageUrlList () {
-    localStorage.setItem(browserUrlListId, JSON.stringify(aRestrictedSites));
 }
 
 function updateChromeStorageRestrictedSites () {
