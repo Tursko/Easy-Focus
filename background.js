@@ -14,10 +14,10 @@ chrome.tabs.onActivated.addListener( (activeInfo) => {
 
 function redirectTab(tab) {
     chrome.storage.local.get("focusEnabled").then( (result) => {
-        let isFocusActive = result.focusEnabled;
+        let focusEnabled = result.focusEnabled;
         chrome.storage.sync.get("restrictedSites").then( (result) => {
             let aRestrictedSites = JSON.parse(result.restrictedSites);
-            if (isFocusActive && tab.url)
+            if (focusEnabled && tab.url)
             {
                 aRestrictedSites.forEach(url => {
                     let regex = new RegExp(url, "g")

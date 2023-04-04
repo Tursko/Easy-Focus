@@ -13,18 +13,40 @@ const addUrlBtn = document.getElementById("addUrlBtn");
 const inputUrl = document.getElementById("inputUrl");
 const ulUrls = document.getElementById("ulUrls");
 
-if (aLocalStorageUrlList) {
-    aRestrictedSites = aLocalStorageUrlList;
-    renderUrlList();
+/*-------------------- Popup Load --------------------*/
+function popupLoad() {
+    chrome.storage.local.get("focusEnabled").then((result) => {
+        let focusEnabled = result.focusEnabled;
+        if (focusEnabled) {
+            hidePopupElements();
+        } else {
+            showPopupElements();
+        }
+    });
 }
 
-enableFocusBtn.addEventListener("click", function() {
-    chrome.storage.local.set({ focusEnabled: true });
-});
+/*-------------------- Focus Mode --------------------*/
+function enableFocusMode() {
+    chrome.storage.local.set({ focusEnabled: true }).then( () => {     
+        hidePopupElements();
+    });
+}
 
-disableFocusBtn.addEventListener("click", function() { 
-    chrome.storage.local.set({ focusEnabled: false });
-});
+function disableFocusMode() {
+    chrome.storage.local.set({ focusEnabled: false }).then( () => {
+        showPopupElements();
+    });
+}
+
+function hidePopupElements() {
+    enableFocusBtn.style.display = "none";
+    disableFocusBtn.style.display = "";
+}
+
+function showPopupElements() {
+    enableFocusBtn.style.display = "";
+    disableFocusBtn.style.display = "none";
+}
 
 addUrlBtn.addEventListener("click", function() {
     if (inputUrl.value != "") {
@@ -51,3 +73,8 @@ function updateLocalStorageUrlList () {
 function updateChromeStorageRestrictedSites () {
     chrome.storage.sync.set({ restrictedSites: JSON.stringify(aRestrictedSites) });
 }
+
+/*-------------------- Event Listeners --------------------*/
+document.addEventListener('DOMContentLoaded', popupLoad);
+enableFocusBtn.addEventListener("click", enableFocusMode);
+disableFocusBtn.addEventListener("click", disableFocusMode);
