@@ -1,0 +1,22 @@
+body {
+    background-color: #22272E;
+    color: #E6EDF3;
+}
+
+body.focus {
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+}
+
+#focusTitle {
+    font-size: 30pt;
+}
+
+#focusMessage {
+    font-size: 15pt;
+}

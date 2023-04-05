@@ -3,8 +3,8 @@
 
 let aRestrictedSites = [];
 
-let show = "";
-let hide = "none";
+const show = "";
+const hide = "none";
 
 const redirectUrl = chrome.runtime.getURL("focus.html");
 
@@ -44,7 +44,7 @@ function disableFocusMode() {
 
 function refreshCurrentTab() {
     let queryOptions = { active: true, lastFocusedWindow: true };
-    chrome.tabs.query(queryOptions).then( (tabs) => {
+    chrome.tabs.query(queryOptions).then((tabs) => {
         if (tabs[0].url) {
             let currentTab = tabs[0];
             getRestrictedSites().then((aRestrictedSites) => {
@@ -80,12 +80,17 @@ function showPopupElements() {
 }
 
 addUrlBtn.addEventListener("click", function() {
+    // TODO:
+    // Get restricted sites
+    // add new site
+    // set restricted sites sync
+    // render list
     if (inputUrl.value != "") {
         aRestrictedSites.push(inputUrl.value);
         inputUrl.value = "";
     }
-    updateChromeStorageRestrictedSites();
-    renderUrlList();
+    //updateChromeStorageRestrictedSites();
+    //renderUrlList();
 });
 
 function renderUrlList () {
