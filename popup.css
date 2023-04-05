@@ -15,8 +15,10 @@ body.focus {
 
 #focusTitle {
     font-size: 30pt;
+    margin: 10pt;
 }
 
 #focusMessage {
     font-size: 15pt;
+    margin: 10pt;
 }
