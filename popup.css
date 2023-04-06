@@ -1,6 +1,8 @@
 body {
-    background-color: #22272E;
+    background-color: #23242A;
     color: #E6EDF3;
+
+    padding: 20px;
 }
 
 body.focus {
@@ -21,4 +23,48 @@ body.focus {
 #focusMessage {
     font-size: 15pt;
     margin: 10pt;
+}
+
+button {
+    min-width: 200px;
+    border-radius: 15px;
+    padding: 10px;
+    background-color: #464B5C;
+    color: #D9DFFA;
+
+    border: none;
+    outline: none;
+
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #585e73;
+}
+
+input {
+    border-radius: 15px;
+    padding: 10px;
+    border: none;
+    outline: none;
+
+    width: 100%;
+}
+
+#addUrlBtn {
+    min-width: 0px;
+    width: 45px;
+    font-size: 12pt;
+    margin-bottom:0px;
+    margin-left: 5px;
+}
+
+#inputDiv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
