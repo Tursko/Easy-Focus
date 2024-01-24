@@ -45,7 +45,7 @@ function disableFocusMode() {
 function refreshCurrentTab() {
     let queryOptions = { active: true, lastFocusedWindow: true };
     chrome.tabs.query(queryOptions).then((tabs) => {
-        if (tabs[0].url) {
+        if (tabs.length > 0 && tabs[0].url) {
             let currentTab = tabs[0];
             getRestrictedSites().then((aRestrictedSites) => {
                 aRestrictedSites.forEach(url => {
@@ -89,7 +89,7 @@ addUrlBtn.addEventListener("click", function() {
         aRestrictedSites.push(inputUrl.value);
         inputUrl.value = "";
     }
-    //updateChromeStorageRestrictedSites();
+    updateChromeStorageRestrictedSites();
     //renderUrlList();
 });
 

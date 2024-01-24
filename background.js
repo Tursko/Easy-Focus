@@ -16,15 +16,17 @@ function redirectTab(tab) {
     chrome.storage.local.get("focusEnabled").then( (result) => {
         let focusEnabled = result.focusEnabled;
         chrome.storage.sync.get("restrictedSites").then( (result) => {
-            let aRestrictedSites = JSON.parse(result.restrictedSites);
-            if (focusEnabled && tab.url)
-            {
-                aRestrictedSites.forEach(url => {
-                    let regex = new RegExp(url, "g")
-                    if (tab.url.search(regex) >= 0) {
-                        chrome.tabs.update(tab.id, { url: redirectUrl });
-                    }
-                });
+            if (result?.restrictedSites) {
+                let aRestrictedSites = JSON.parse(result.restrictedSites);
+                if (focusEnabled && tab.url)
+                {
+                    aRestrictedSites.forEach(url => {
+                        let regex = new RegExp(url, "g")
+                        if (tab.url.search(regex) >= 0) {
+                            chrome.tabs.update(tab.id, { url: redirectUrl });
+                        }
+                    });
+                }
             }          
         });
     });
