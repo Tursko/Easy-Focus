@@ -93,6 +93,13 @@ addUrlBtn.addEventListener("click", function() {
     //renderUrlList();
 });
 
+//TO DO:
+//Get restricted sites
+//Remove restricted site by clicking on button
+//Update restricted sites list
+//Render list
+
+
 function renderUrlList () {
     let urlInnerHtml = '';
     for (let i = 0; i < aRestrictedSites.length; i++) {
