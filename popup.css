@@ -44,6 +44,22 @@ button:hover {
     background-color: #585e73;
 }
 
+small-btn{
+    background-color: #464B5C;
+    min-width: 50px;
+    border-radius: 10px;
+    padding:5px;
+    color: #D9DFFA;
+
+    border: none;
+    outline: none;
+
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-weight: bold;
+
+}
+
 input {
     border-radius: 15px;
     padding: 10px;
