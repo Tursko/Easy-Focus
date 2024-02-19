@@ -13,7 +13,10 @@ const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
 
 const addUrlBtn = document.getElementById("addUrlBtn");
+const removeUrlBtn=document.getElementById("removeUrlBtn");
+
 const inputUrl = document.getElementById("inputUrl");
+const removeinput=document.getElementById("removeinput");
 const ulUrls = document.getElementById("ulUrls");
 
 /*-------------------- Popup Load --------------------*/
@@ -68,14 +71,18 @@ function hidePopupElements() {
     enableFocusBtn.style.display = hide;
     disableFocusBtn.style.display = show;
     inputUrl.style.display = hide;
+    removeinput.style.display=show;
     addUrlBtn.style.display = hide;
+    removeUrlBtn.style.display=show;
 }
 
 function showPopupElements() {
     enableFocusBtn.style.display = show;
     disableFocusBtn.style.display = hide;
     inputUrl.style.display = show;
+    removeinput.style.display=hide;
     addUrlBtn.style.display = show;
+    removeUrlBtn.style.display=hide;
 
 }
 
@@ -93,11 +100,21 @@ addUrlBtn.addEventListener("click", function() {
     //renderUrlList();
 });
 
-//TO DO:
-//Get restricted sites
-//Remove restricted site by clicking on button
-//Update restricted sites list
-//Render list
+
+removeUrlBtn.addEventListener("click",function() {
+    //TO DO:
+    //Get restricted sites
+    //Remove site
+
+    debugger
+    var iIndex=aRestrictedSites.indexOf(removeinput.value)
+    aRestrictedSites.splice(iIndex,1)
+    removeinput.value="";
+
+    updateChromeStorageRestrictedSites();
+
+});
+
 
 
 function renderUrlList () {
