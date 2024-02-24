@@ -1,27 +1,25 @@
 <html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="popup.css">
-    </head>
-    <body>
-        <h1>Easy Focus</h1>
-        <button id="enableFocusBtn">Enable Focus Mode</button>
-        <button id="disableFocusBtn" style="display:none">Disable Focus Mode</button>
-        <div id="inputDiv">
-            <input id="inputUrl" type="text" placeholder="Add site to block list...">
-            <br>
-            <button id="addUrlBtn" class="addBtn">+</button>
-        </div>
 
-        <ul id="ulUrls">
+<head>
+    <link rel="stylesheet" type="text/css" href="popup.css">
+</head>
 
-        </ul>
+<body>
+    <h1>Easy Focus</h1>
+    <button id="enableFocusBtn">Enable Focus Mode</button>
+    <button id="disableFocusBtn" style="display:none">Disable Focus Mode</button>
+    <div id="inputDiv">
+        <input id="inputUrl" type="text" placeholder="Add site...">
+        <input id="removeUrl" type="text" placeholder="Remove site...">
+        <br>
+        <button id="addUrlBtn" class="addBtn">+</button>
+        <button id="removeUrlBtn" class="addBtn">-</button>
+    </div>
 
-        <div id="inputDiv">
-            <input id="removeinput" type="text" placeholder="Remove site from block list... ">
-            <br>
-            <small-btn id="removeUrlBtn" class="removeBtn"> - </small-btn> <!--Button will be used for removing restricted
-                                                                URLs from list-->
-            </div>
-        <script src="popup.js"></script>
-    </body>
+    <ul id="ulUrls">
+    </ul>
+
+    <script src="popup.js"></script>
+</body>
+
 </html>

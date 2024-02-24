@@ -61,6 +61,14 @@ input {
     margin-left: 5px;
 }
 
+#removeUrlBtn {
+    min-width: 0px;
+    width: 45px;
+    font-size: 12pt;
+    margin-bottom:0px;
+    margin-left: 5px;
+}
+
 #inputDiv {
     display: flex;
     flex-direction: row;

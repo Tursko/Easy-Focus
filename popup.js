@@ -12,11 +12,11 @@ const redirectUrl = chrome.runtime.getURL("focus.html");
 const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
 
-const addUrlBtn = document.getElementById("addUrlBtn");
-const removeUrlBtn=document.getElementById("removeUrlBtn");
-
 const inputUrl = document.getElementById("inputUrl");
-const removeinput=document.getElementById("removeinput");
+const removeUrl = document.getElementById("removeUrl");
+const addUrlBtn = document.getElementById("addUrlBtn");
+const removeUrlBtn = document.getElementById("removeUrlBtn");
+
 const ulUrls = document.getElementById("ulUrls");
 
 /*-------------------- Popup Load --------------------*/
@@ -25,22 +25,30 @@ function popupLoad() {
         let focusEnabled = result.focusEnabled;
         if (focusEnabled) {
             hidePopupElements();
+            renderUrlList();
         } else {
             showPopupElements();
+            renderUrlList();
         }
+    });
+
+    getRestrictedSites().then((aSyncedSites) => {
+        aSyncedSites.forEach(url => {
+            aRestrictedSites.push(url);
+        });
     });
 }
 
 /*-------------------- Focus Mode --------------------*/
 function enableFocusMode() {
-    chrome.storage.local.set({ focusEnabled: true }).then( () => {     
+    chrome.storage.local.set({ focusEnabled: true }).then(() => {
         hidePopupElements();
         refreshCurrentTab();
     });
 }
 
 function disableFocusMode() {
-    chrome.storage.local.set({ focusEnabled: false }).then( () => {
+    chrome.storage.local.set({ focusEnabled: false }).then(() => {
         showPopupElements();
     });
 }
@@ -70,63 +78,54 @@ async function getRestrictedSites() {
 function hidePopupElements() {
     enableFocusBtn.style.display = hide;
     disableFocusBtn.style.display = show;
+    
     inputUrl.style.display = hide;
-    removeinput.style.display=show;
+    removeUrl.style.display = show;
     addUrlBtn.style.display = hide;
-    removeUrlBtn.style.display=show;
+    removeUrlBtn.style.display = show;
 }
 
 function showPopupElements() {
     enableFocusBtn.style.display = show;
     disableFocusBtn.style.display = hide;
+    
     inputUrl.style.display = show;
-    removeinput.style.display=hide;
+    removeUrl.style.display = hide;
     addUrlBtn.style.display = show;
-    removeUrlBtn.style.display=hide;
-
+    removeUrlBtn.style.display = hide;
 }
 
-addUrlBtn.addEventListener("click", function() {
-    // TODO:
-    // Get restricted sites
-    // add new site
-    // set restricted sites sync
-    // render list
+addUrlBtn.addEventListener("click", function () {
     if (inputUrl.value != "") {
         aRestrictedSites.push(inputUrl.value);
         inputUrl.value = "";
     }
     updateChromeStorageRestrictedSites();
-    //renderUrlList();
+    renderUrlList();
 });
 
-
-removeUrlBtn.addEventListener("click",function() {
-    //TO DO:
-    //Get restricted sites
-    //Remove site
-
-    debugger
-    var iIndex=aRestrictedSites.indexOf(removeinput.value)
-    aRestrictedSites.splice(iIndex,1)
-    removeinput.value="";
+removeUrlBtn.addEventListener("click", function () {
+    var iIndex = aRestrictedSites.indexOf(removeUrl.value)
+    if (iIndex > -1) {
+        aRestrictedSites.splice(iIndex, 1);
+    }
+    removeUrl.value = "";
 
     updateChromeStorageRestrictedSites();
-
+    renderUrlList();
 });
 
-
-
-function renderUrlList () {
-    let urlInnerHtml = '';
-    for (let i = 0; i < aRestrictedSites.length; i++) {
-        urlInnerHtml += `<li>${aRestrictedSites[i]}</li>`;
-    }
-
-    ulUrls.innerHTML = urlInnerHtml;
+function renderUrlList() {
+    getRestrictedSites().then((aRestrictedSites) => {
+        let urlInnerHtml = '';
+        aRestrictedSites.forEach(url => {
+            urlInnerHtml += `<li>${url}</li>`;
+        });
+        ulUrls.innerHTML = urlInnerHtml;
+    });
 }
 
-function updateChromeStorageRestrictedSites () {
+function updateChromeStorageRestrictedSites() {
     chrome.storage.sync.set({ restrictedSites: JSON.stringify(aRestrictedSites) });
 }
 
