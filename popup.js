@@ -13,9 +13,7 @@ const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
 
 const inputUrl = document.getElementById("inputUrl");
-const removeUrl = document.getElementById("removeUrl");
 const addUrlBtn = document.getElementById("addUrlBtn");
-const removeUrlBtn = document.getElementById("removeUrlBtn");
 
 const ulUrls = document.getElementById("ulUrls");
 
@@ -78,21 +76,19 @@ async function getRestrictedSites() {
 function hidePopupElements() {
     enableFocusBtn.style.display = hide;
     disableFocusBtn.style.display = show;
-    
+    ulUrls.style.display = hide;
+
     inputUrl.style.display = hide;
-    removeUrl.style.display = show;
     addUrlBtn.style.display = hide;
-    removeUrlBtn.style.display = show;
 }
 
 function showPopupElements() {
     enableFocusBtn.style.display = show;
     disableFocusBtn.style.display = hide;
-    
+    ulUrls.style.display = show;
+
     inputUrl.style.display = show;
-    removeUrl.style.display = hide;
     addUrlBtn.style.display = show;
-    removeUrlBtn.style.display = hide;
 }
 
 addUrlBtn.addEventListener("click", function () {
@@ -104,30 +100,43 @@ addUrlBtn.addEventListener("click", function () {
     renderUrlList();
 });
 
-removeUrlBtn.addEventListener("click", function () {
-    var iIndex = aRestrictedSites.indexOf(removeUrl.value)
+function renderUrlList() {
+    getRestrictedSites().then((aRestrictedSites) => {
+        ulUrls.innerHTML = ''; // Clear all items from the visual list
+        aRestrictedSites.forEach(url => {
+            let li = document.createElement("li");
+            let liText = document.createTextNode(url);
+
+            let liRemoveButton = document.createElement('button');
+            liRemoveButton.innerText = 'X';
+            liRemoveButton.addEventListener("click", event => onClickRemoveUrl(li, url));
+
+            li.appendChild(liText);
+            li.appendChild(liRemoveButton);
+
+            ulUrls.appendChild(li);
+        });
+    });
+}
+
+function onClickRemoveUrl(li, url) {
+    var iIndex = aRestrictedSites.indexOf(url);
     if (iIndex > -1) {
         aRestrictedSites.splice(iIndex, 1);
     }
-    removeUrl.value = "";
 
     updateChromeStorageRestrictedSites();
     renderUrlList();
-});
+}
 
-function renderUrlList() {
-    getRestrictedSites().then((aRestrictedSites) => {
-        let urlInnerHtml = '';
-        aRestrictedSites.forEach(url => {
-            urlInnerHtml += `<li>${url}</li>`;
-        });
-        ulUrls.innerHTML = urlInnerHtml;
-    });
+function test(test) {
+    console.log(test);
 }
 
 function updateChromeStorageRestrictedSites() {
     chrome.storage.sync.set({ restrictedSites: JSON.stringify(aRestrictedSites) });
 }
+
 
 /*-------------------- Event Listeners --------------------*/
 document.addEventListener('DOMContentLoaded', popupLoad);
