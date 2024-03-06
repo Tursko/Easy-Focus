@@ -107,7 +107,7 @@ function renderUrlList() {
             let li = document.createElement("li");
             let liText = document.createTextNode(url);
 
-            let liRemoveButton = document.createElement('button');
+            let liRemoveButton = document.createElement('removeBtn');
             liRemoveButton.innerText = 'X';
             liRemoveButton.addEventListener("click", event => onClickRemoveUrl(li, url));
 
