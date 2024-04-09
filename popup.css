@@ -61,14 +61,6 @@ input {
     margin-left: 5px;
 }
 
-#removeUrlBtn {
-    min-width: 0px;
-    width: 45px;
-    font-size: 12pt;
-    margin-bottom:0px;
-    margin-left: 5px;
-}
-
 #inputDiv {
     display: flex;
     flex-direction: row;
@@ -80,7 +72,7 @@ input {
 small-btn{
     background-color: #464B5C;
     min-width: 40px;
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 5px;
     color: #D9DFFA;
 
@@ -92,10 +84,15 @@ small-btn{
     font-weight: bold;
 }
 
-#removeBtn{
-    min-width: 5px;
-    width: 20px;
-    font-size: 12pt;
-    margin-bottom: 0px;
-    margin-left: 5px;
+removeBtn{
+    
+    border-radius: 150px;
+    font-size: 7pt;
+    margin-left:-100px;
+    line-height:30px;
+
+    padding: 8px;
+    background-color: #464B5C;
+    color: #D9DFFA;
 }
+  
