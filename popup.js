@@ -1,6 +1,3 @@
-// Local Storage
-//const aLocalStorageUrlList = JSON.parse(localStorage.getItem(browserUrlListId));
-
 let aRestrictedSites = [];
 
 const show = "";
@@ -12,6 +9,7 @@ const redirectUrl = chrome.runtime.getURL("focus.html");
 const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
 
+const inputDiv = document.getElementById("inputDiv");
 const inputUrl = document.getElementById("inputUrl");
 const addUrlBtn = document.getElementById("addUrlBtn");
 
@@ -23,11 +21,10 @@ function popupLoad() {
         let focusEnabled = result.focusEnabled;
         if (focusEnabled) {
             hidePopupElements();
-            renderUrlList();
         } else {
             showPopupElements();
-            renderUrlList();
         }
+        renderUrlList();
     });
 
     getRestrictedSites().then((aSyncedSites) => {
@@ -76,40 +73,42 @@ async function getRestrictedSites() {
 function hidePopupElements() {
     enableFocusBtn.style.display = hide;
     disableFocusBtn.style.display = show;
+    inputDiv.style.display = hide;
     ulUrls.style.display = hide;
-
-    inputUrl.style.display = hide;
-    addUrlBtn.style.display = hide;
 }
 
 function showPopupElements() {
     enableFocusBtn.style.display = show;
     disableFocusBtn.style.display = hide;
+    inputDiv.style.display = show;
     ulUrls.style.display = show;
-
-    inputUrl.style.display = show;
-    addUrlBtn.style.display = show;
 }
 
-addUrlBtn.addEventListener("click", function () {
+function addUrl() {
     if (inputUrl.value != "") {
         aRestrictedSites.push(inputUrl.value);
         inputUrl.value = "";
     }
     updateChromeStorageRestrictedSites();
     renderUrlList();
+}
+
+addUrlBtn.addEventListener("click", addUrl);
+inputUrl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") addUrl();
 });
 
 function renderUrlList() {
     getRestrictedSites().then((aRestrictedSites) => {
-        ulUrls.innerHTML = ''; // Clear all items from the visual list
+        ulUrls.innerHTML = '';
         aRestrictedSites.forEach(url => {
             let li = document.createElement("li");
             let liText = document.createTextNode(url);
 
-            let liRemoveButton = document.createElement('removeBtn');
-            liRemoveButton.innerText = 'X';
-            liRemoveButton.addEventListener("click", event => onClickRemoveUrl(li, url));
+            let liRemoveButton = document.createElement("button");
+            liRemoveButton.className = "btn btn-remove";
+            liRemoveButton.textContent = "✕";
+            liRemoveButton.addEventListener("click", () => onClickRemoveUrl(li, url));
 
             li.appendChild(liText);
             li.appendChild(liRemoveButton);
@@ -129,16 +128,51 @@ function onClickRemoveUrl(li, url) {
     renderUrlList();
 }
 
-function test(test) {
-    console.log(test);
-}
-
 function updateChromeStorageRestrictedSites() {
     chrome.storage.sync.set({ restrictedSites: JSON.stringify(aRestrictedSites) });
 }
 
+/*-------------------- Hold to Disable --------------------*/
+const HOLD_DURATION = 5000;
+const HOLD_INTERVAL = 50;
+const disableDefaultText = "Hold to Disable";
+
+let holdTimer = null;
+let holdStart = null;
+
+disableFocusBtn.textContent = disableDefaultText;
+
+function startHold() {
+    holdStart = Date.now();
+    disableFocusBtn.style.color = "#fafafa";
+    holdTimer = setInterval(() => {
+        let elapsed = Date.now() - holdStart;
+        let progress = Math.min(elapsed / HOLD_DURATION, 1);
+        let percent = Math.round(progress * 100);
+        let secondsLeft = Math.ceil((HOLD_DURATION - elapsed) / 1000);
+
+        disableFocusBtn.style.setProperty("--hold-progress", percent + "%");
+        disableFocusBtn.textContent = "Hold... " + secondsLeft + "s";
+
+        if (progress >= 1) {
+            resetHold();
+            disableFocusMode();
+        }
+    }, HOLD_INTERVAL);
+}
+
+function resetHold() {
+    clearInterval(holdTimer);
+    holdTimer = null;
+    holdStart = null;
+    disableFocusBtn.style.setProperty("--hold-progress", "0%");
+    disableFocusBtn.textContent = disableDefaultText;
+}
+
+disableFocusBtn.addEventListener("mousedown", startHold);
+disableFocusBtn.addEventListener("mouseup", resetHold);
+disableFocusBtn.addEventListener("mouseleave", resetHold);
 
 /*-------------------- Event Listeners --------------------*/
 document.addEventListener('DOMContentLoaded', popupLoad);
 enableFocusBtn.addEventListener("click", enableFocusMode);
-disableFocusBtn.addEventListener("click", disableFocusMode);
