@@ -1,6 +1,3 @@
-// Local Storage
-//const aLocalStorageUrlList = JSON.parse(localStorage.getItem(browserUrlListId));
-
 let aRestrictedSites = [];
 
 const show = "";
@@ -12,6 +9,7 @@ const redirectUrl = chrome.runtime.getURL("focus.html");
 const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
 
+const inputDiv = document.getElementById("inputDiv");
 const inputUrl = document.getElementById("inputUrl");
 const addUrlBtn = document.getElementById("addUrlBtn");
 
@@ -23,11 +21,10 @@ function popupLoad() {
         let focusEnabled = result.focusEnabled;
         if (focusEnabled) {
             hidePopupElements();
-            renderUrlList();
         } else {
             showPopupElements();
-            renderUrlList();
         }
+        renderUrlList();
     });
 
     getRestrictedSites().then((aSyncedSites) => {
@@ -76,19 +73,15 @@ async function getRestrictedSites() {
 function hidePopupElements() {
     enableFocusBtn.style.display = hide;
     disableFocusBtn.style.display = show;
+    inputDiv.style.display = hide;
     ulUrls.style.display = hide;
-
-    inputUrl.style.display = hide;
-    addUrlBtn.style.display = hide;
 }
 
 function showPopupElements() {
     enableFocusBtn.style.display = show;
     disableFocusBtn.style.display = hide;
+    inputDiv.style.display = show;
     ulUrls.style.display = show;
-
-    inputUrl.style.display = show;
-    addUrlBtn.style.display = show;
 }
 
 addUrlBtn.addEventListener("click", function () {
@@ -102,14 +95,15 @@ addUrlBtn.addEventListener("click", function () {
 
 function renderUrlList() {
     getRestrictedSites().then((aRestrictedSites) => {
-        ulUrls.innerHTML = ''; // Clear all items from the visual list
+        ulUrls.innerHTML = '';
         aRestrictedSites.forEach(url => {
             let li = document.createElement("li");
             let liText = document.createTextNode(url);
 
-            let liRemoveButton = document.createElement('removeBtn');
-            liRemoveButton.innerText = 'X';
-            liRemoveButton.addEventListener("click", event => onClickRemoveUrl(li, url));
+            let liRemoveButton = document.createElement("button");
+            liRemoveButton.className = "btn btn-remove";
+            liRemoveButton.textContent = "✕";
+            liRemoveButton.addEventListener("click", () => onClickRemoveUrl(li, url));
 
             li.appendChild(liText);
             li.appendChild(liRemoveButton);
@@ -129,14 +123,9 @@ function onClickRemoveUrl(li, url) {
     renderUrlList();
 }
 
-function test(test) {
-    console.log(test);
-}
-
 function updateChromeStorageRestrictedSites() {
     chrome.storage.sync.set({ restrictedSites: JSON.stringify(aRestrictedSites) });
 }
-
 
 /*-------------------- Event Listeners --------------------*/
 document.addEventListener('DOMContentLoaded', popupLoad);

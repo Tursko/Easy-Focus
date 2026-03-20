@@ -1,23 +1,25 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="popup.css">
 </head>
 
 <body>
-    <h1>Easy Focus</h1>
-    <button id="enableFocusBtn">Enable Focus Mode</button>
-    <button id="disableFocusBtn" style="display:none">Disable Focus Mode</button>
-    <div id="inputDiv">
-        <input id="inputUrl" type="text" placeholder="Add site...">
-        <br>
-        <button id="addUrlBtn" class="addBtn">+</button>
-        <br>
-    </div>
+    <div class="container">
+        <h1 class="title">Easy Focus</h1>
 
-    <ul id="ulUrls" style="list-style: none;">
-      
-    </ul>
+        <button id="enableFocusBtn" class="btn btn-primary">Enable Focus Mode</button>
+        <button id="disableFocusBtn" class="btn btn-secondary" style="display:none">Disable Focus Mode</button>
+
+        <div id="inputDiv" class="input-row">
+            <input id="inputUrl" type="text" placeholder="Add site to block...">
+            <button id="addUrlBtn" class="btn btn-icon">+</button>
+        </div>
+
+        <ul id="ulUrls" class="site-list"></ul>
+    </div>
 
     <script src="popup.js"></script>
 </body>

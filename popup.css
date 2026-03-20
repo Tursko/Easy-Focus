@@ -1,98 +1,192 @@
-body {
-    background-color: #23242A;
-    color: #E6EDF3;
-
-    padding: 20px;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-body.focus {
+body {
+    background-color: #09090b;
+    color: #fafafa;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 15px;
+    width: 340px;
+}
+
+.container {
+    padding: 20px;
     display: flex;
     flex-direction: column;
+    gap: 12px;
+}
 
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #fafafa;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
 
+.btn-primary {
+    width: 100%;
+    padding: 11px 18px;
+    background-color: #fafafa;
+    color: #09090b;
+}
+
+.btn-primary:hover {
+    background-color: #d4d4d8;
+}
+
+.btn-secondary {
+    width: 100%;
+    padding: 11px 18px;
+    background-color: #27272a;
+    color: #fafafa;
+    border: 1px solid #3f3f46;
+}
+
+.btn-secondary:hover {
+    background-color: #3f3f46;
+}
+
+.btn-icon {
+    padding: 11px 16px;
+    background-color: #27272a;
+    color: #fafafa;
+    border: 1px solid #3f3f46;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.btn-icon:hover {
+    background-color: #3f3f46;
+}
+
+.btn-remove {
+    padding: 4px 10px;
+    background-color: transparent;
+    color: #a1a1aa;
+    font-size: 14px;
+    flex-shrink: 0;
+    border-radius: 4px;
+}
+
+.btn-remove:hover {
+    background-color: #27272a;
+    color: #ef4444;
+}
+
+/* Input row */
+.input-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 11px 14px;
+    background-color: #18181b;
+    color: #fafafa;
+    border: 1px solid #27272a;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s ease;
+}
+
+input[type="text"]::placeholder {
+    color: #71717a;
+}
+
+input[type="text"]:focus {
+    border-color: #3f3f46;
+}
+
+/* Site list */
+.site-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    max-height: 264px;
+    overflow-y: auto;
+    border-radius: 6px;
+    border: 1px solid #27272a;
+}
+
+.site-list:empty {
+    display: none;
+}
+
+.site-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: #a1a1aa;
+    border-bottom: 1px solid #27272a;
+}
+
+.site-list li:last-child {
+    border-bottom: none;
+}
+
+/* Scrollbar */
+.site-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.site-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.site-list::-webkit-scrollbar-thumb {
+    background-color: #27272a;
+    border-radius: 3px;
+}
+
+.site-list::-webkit-scrollbar-thumb:hover {
+    background-color: #3f3f46;
+}
+
+/* Focus page styles */
+body.focus {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    padding: 24px;
 }
 
 #focusTitle {
-    font-size: 30pt;
-    margin: 10pt;
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #fafafa;
 }
 
 #focusMessage {
-    font-size: 15pt;
-    margin: 10pt;
+    font-size: 16px;
+    color: #a1a1aa;
+    max-width: 400px;
+    line-height: 1.5;
 }
-
-button {
-    min-width: 250px;
-    border-radius: 15px;
-    padding: 10px;
-    background-color: #464B5C;
-    color: #D9DFFA;
-
-    border: none;
-    outline: none;
-
-    cursor: pointer;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-button:hover {
-    background-color: #585e73;
-}
-
-input {
-    border-radius: 15px;
-    padding: 10px;
-    border: none;
-    outline: none;
-
-    width: 100%;
-}
-
-#addUrlBtn {
-    min-width: 0px;
-    width: 45px;
-    font-size: 12pt;
-    margin-bottom:0px;
-    margin-left: 5px;
-}
-
-#inputDiv {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-small-btn{
-    background-color: #464B5C;
-    min-width: 40px;
-    border-radius: 5px;
-    padding: 5px;
-    color: #D9DFFA;
-
-    border: none;
-    outline: none;
-
-    cursor:pointer;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-removeBtn{
-    
-    border-radius: 150px;
-    font-size: 7pt;
-    margin-left:-100px;
-    line-height:30px;
-
-    padding: 8px;
-    background-color: #464B5C;
-    color: #D9DFFA;
-}
-  
