@@ -127,7 +127,47 @@ function updateChromeStorageRestrictedSites() {
     chrome.storage.sync.set({ restrictedSites: JSON.stringify(aRestrictedSites) });
 }
 
+/*-------------------- Hold to Disable --------------------*/
+const HOLD_DURATION = 5000;
+const HOLD_INTERVAL = 50;
+const disableDefaultText = "Hold to Disable";
+
+let holdTimer = null;
+let holdStart = null;
+
+disableFocusBtn.textContent = disableDefaultText;
+
+function startHold() {
+    holdStart = Date.now();
+    disableFocusBtn.style.color = "#fafafa";
+    holdTimer = setInterval(() => {
+        let elapsed = Date.now() - holdStart;
+        let progress = Math.min(elapsed / HOLD_DURATION, 1);
+        let percent = Math.round(progress * 100);
+        let secondsLeft = Math.ceil((HOLD_DURATION - elapsed) / 1000);
+
+        disableFocusBtn.style.setProperty("--hold-progress", percent + "%");
+        disableFocusBtn.textContent = "Hold... " + secondsLeft + "s";
+
+        if (progress >= 1) {
+            resetHold();
+            disableFocusMode();
+        }
+    }, HOLD_INTERVAL);
+}
+
+function resetHold() {
+    clearInterval(holdTimer);
+    holdTimer = null;
+    holdStart = null;
+    disableFocusBtn.style.setProperty("--hold-progress", "0%");
+    disableFocusBtn.textContent = disableDefaultText;
+}
+
+disableFocusBtn.addEventListener("mousedown", startHold);
+disableFocusBtn.addEventListener("mouseup", resetHold);
+disableFocusBtn.addEventListener("mouseleave", resetHold);
+
 /*-------------------- Event Listeners --------------------*/
 document.addEventListener('DOMContentLoaded', popupLoad);
 enableFocusBtn.addEventListener("click", enableFocusMode);
-disableFocusBtn.addEventListener("click", disableFocusMode);

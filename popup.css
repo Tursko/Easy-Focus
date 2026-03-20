@@ -57,6 +57,8 @@ body {
     background-color: #27272a;
     color: #fafafa;
     border: 1px solid #3f3f46;
+    background-image: linear-gradient(to right, #ef4444 var(--hold-progress, 0%), transparent var(--hold-progress, 0%));
+    user-select: none;
 }
 
 .btn-secondary:hover {
