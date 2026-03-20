@@ -84,13 +84,18 @@ function showPopupElements() {
     ulUrls.style.display = show;
 }
 
-addUrlBtn.addEventListener("click", function () {
+function addUrl() {
     if (inputUrl.value != "") {
         aRestrictedSites.push(inputUrl.value);
         inputUrl.value = "";
     }
     updateChromeStorageRestrictedSites();
     renderUrlList();
+}
+
+addUrlBtn.addEventListener("click", addUrl);
+inputUrl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") addUrl();
 });
 
 function renderUrlList() {
