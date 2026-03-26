@@ -8,6 +8,7 @@ const redirectUrl = chrome.runtime.getURL("focus.html");
 // DOM Constants
 const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
+const addCurrentSiteBtn = document.getElementById("addCurrentBtn");
 
 const inputDiv = document.getElementById("inputDiv");
 const inputUrl = document.getElementById("inputUrl");
@@ -73,6 +74,7 @@ async function getRestrictedSites() {
 function hidePopupElements() {
     enableFocusBtn.style.display = hide;
     disableFocusBtn.style.display = show;
+    addCurrentBtn.style.display = show;
     inputDiv.style.display = hide;
     ulUrls.style.display = hide;
 }
@@ -80,6 +82,7 @@ function hidePopupElements() {
 function showPopupElements() {
     enableFocusBtn.style.display = show;
     disableFocusBtn.style.display = hide;
+    addCurrentBtn.style.display = hide;
     inputDiv.style.display = show;
     ulUrls.style.display = show;
 }
@@ -133,7 +136,7 @@ function updateChromeStorageRestrictedSites() {
 }
 
 /*-------------------- Hold to Disable --------------------*/
-const HOLD_DURATION = 5000;
+const HOLD_DURATION = 7000;
 const HOLD_INTERVAL = 50;
 const disableDefaultText = "Hold to Disable";
 
