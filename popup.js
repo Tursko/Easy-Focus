@@ -90,7 +90,7 @@ function showPopupElements() {
 function addUrl(url = null) {
     let siteToAdd = url ?? inputUrl.value;
 
-    if (siteToAdd != "") {
+    if (siteToAdd != "" && !aRestrictedSites.includes(siteToAdd)) {
         aRestrictedSites.push(siteToAdd);
     }
 
