@@ -8,6 +8,7 @@ const redirectUrl = chrome.runtime.getURL("focus.html");
 // DOM Constants
 const enableFocusBtn = document.getElementById("enableFocusBtn");
 const disableFocusBtn = document.getElementById("disableFocusBtn");
+const addCurrentSiteBtn = document.getElementById("addCurrentSiteBtn");
 
 const inputDiv = document.getElementById("inputDiv");
 const inputUrl = document.getElementById("inputUrl");
@@ -73,6 +74,7 @@ async function getRestrictedSites() {
 function hidePopupElements() {
     enableFocusBtn.style.display = hide;
     disableFocusBtn.style.display = show;
+    addCurrentSiteBtn.style.display = show;
     inputDiv.style.display = hide;
     ulUrls.style.display = hide;
 }
@@ -80,23 +82,45 @@ function hidePopupElements() {
 function showPopupElements() {
     enableFocusBtn.style.display = show;
     disableFocusBtn.style.display = hide;
+    addCurrentSiteBtn.style.display = hide;
     inputDiv.style.display = show;
     ulUrls.style.display = show;
 }
 
-function addUrl() {
-    if (inputUrl.value != "") {
-        aRestrictedSites.push(inputUrl.value);
-        inputUrl.value = "";
+function addUrl(url = null) {
+    let siteToAdd = url ?? inputUrl.value;
+
+    if (siteToAdd != "" && !aRestrictedSites.includes(siteToAdd)) {
+        aRestrictedSites.push(siteToAdd);
     }
+
+    inputUrl.value = "";
+
     updateChromeStorageRestrictedSites();
     renderUrlList();
 }
 
-addUrlBtn.addEventListener("click", addUrl);
+addUrlBtn.addEventListener("click", () => addUrl());
 inputUrl.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") addUrl();
+    if (e.key === "Enter") {
+        addUrl();
+    }
 });
+
+function addCurrentSite() {
+    let queryOptions = { active: true, lastFocusedWindow: true };
+    chrome.tabs.query(queryOptions).then((tabs) => {
+        if (tabs.length > 0 && tabs[0].url) {
+            let hostname = new URL(tabs[0].url).hostname;
+            if (hostname) {
+                addUrl(hostname);
+            }
+            refreshCurrentTab();
+        }
+    });
+}
+
+addCurrentSiteBtn.addEventListener("click", addCurrentSite);
 
 function renderUrlList() {
     getRestrictedSites().then((aRestrictedSites) => {
@@ -133,7 +157,7 @@ function updateChromeStorageRestrictedSites() {
 }
 
 /*-------------------- Hold to Disable --------------------*/
-const HOLD_DURATION = 5000;
+const HOLD_DURATION = 7000;
 const HOLD_INTERVAL = 50;
 const disableDefaultText = "Hold to Disable";
 
