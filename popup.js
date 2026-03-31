@@ -14,6 +14,7 @@ const inputDiv = document.getElementById("inputDiv");
 const inputUrl = document.getElementById("inputUrl");
 const addUrlBtn = document.getElementById("addUrlBtn");
 
+const listDiv = document.getElementById("listDiv");
 const ulUrls = document.getElementById("ulUrls");
 
 /*-------------------- Popup Load --------------------*/
@@ -76,6 +77,7 @@ function hidePopupElements() {
     disableFocusBtn.style.display = show;
     addCurrentSiteBtn.style.display = show;
     inputDiv.style.display = hide;
+    listDiv.style.display = hide;
     ulUrls.style.display = hide;
 }
 
@@ -84,6 +86,7 @@ function showPopupElements() {
     disableFocusBtn.style.display = hide;
     addCurrentSiteBtn.style.display = hide;
     inputDiv.style.display = show;
+    listDiv.style.display = show;
     ulUrls.style.display = show;
 }
 

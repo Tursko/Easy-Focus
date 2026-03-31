@@ -26,6 +26,13 @@ body {
     color: #fafafa;
 }
 
+.list-title {
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #fafafa;
+}
+
 /* Buttons */
 .btn {
     display: inline-flex;
@@ -129,6 +136,7 @@ input[type="text"]:focus {
     overflow-y: auto;
     border-radius: 6px;
     border: 1px solid #27272a;
+    margin-top: 8px;
 }
 
 .site-list:empty {
