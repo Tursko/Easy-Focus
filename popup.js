@@ -69,7 +69,7 @@ function refreshCurrentTab() {
 
 async function getRestrictedSites() {
     let result = await chrome.storage.sync.get("restrictedSites");
-    return JSON.parse(result.restrictedSites);
+    return result.restrictedSites ? JSON.parse(result.restrictedSites) : [];
 }
 
 function hidePopupElements() {
