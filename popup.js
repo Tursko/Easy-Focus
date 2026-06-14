@@ -38,7 +38,7 @@ function popupLoad() {
 
 /*-------------------- Focus Mode --------------------*/
 function enableFocusMode() {
-    chrome.storage.local.set({ focusEnabled: true }).then(() => {
+    chrome.storage.local.set({ focusEnabled: true, focusSessionStart: new Date().toISOString() }).then(() => {
         hidePopupElements();
         refreshCurrentTab();
     });

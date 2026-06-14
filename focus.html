@@ -1,15 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="popup.css">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" type="text/css" href="popup.css" />
     <title>Easy Focus</title>
-</head>
+  </head>
 
-<body class="focus">
-    <h1 id="focusTitle">Focus mode is enabled</h1>
-    <p id="focusMessage">Easy Focus is helping you stay focused by blocking distracting sites</p>
-</body>
-
+  <body class="focus">
+    <div id="clock">--:--</div>
+    <div class="session-block">
+      <span class="session-label">Focus Session</span>
+      <span id="sessionTime">0m 00s</span>
+    </div>
+    <div class="focus-info">
+      <p id="focusMessage">Easy Focus is helping you stay focused by blocking distracting sites</p>
+    </div>
+    <script src="focus.js"></script>
+  </body>
 </html>
