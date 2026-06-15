@@ -26,7 +26,6 @@ function popupLoad() {
     } else {
       showPopupElements();
     }
-    renderUrlList();
   });
 
   getRestrictedSites().then((aSyncedSites) => {
@@ -88,8 +87,8 @@ function showPopupElements() {
   disableFocusBtn.style.display = hide;
   addCurrentSiteBtn.style.display = hide;
   inputDiv.style.display = show;
-  listDiv.style.display = show;
   ulUrls.style.display = show;
+  renderUrlList();
 }
 
 function addUrl(url = null) {
@@ -130,6 +129,7 @@ addCurrentSiteBtn.addEventListener("click", addCurrentSite);
 function renderUrlList() {
   getRestrictedSites().then((aRestrictedSites) => {
     ulUrls.innerHTML = "";
+    listDiv.style.display = aRestrictedSites.length > 0 ? show : hide;
     aRestrictedSites.forEach((url) => {
       let li = document.createElement("li");
       let liText = document.createTextNode(url);
