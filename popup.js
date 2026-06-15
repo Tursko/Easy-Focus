@@ -172,9 +172,9 @@ function addCurrentSite() {
 addCurrentSiteBtn.addEventListener("click", addCurrentSite);
 
 function renderUrlList() {
-  getRestrictedSites().then((aRestrictedSites) => {
+  Promise.all([getRestrictedSites(), chrome.storage.local.get("focusEnabled")]).then(([aRestrictedSites, result]) => {
     ulUrls.innerHTML = "";
-    listDiv.style.display = aRestrictedSites.length > 0 ? show : hide;
+    listDiv.style.display = aRestrictedSites.length > 0 && !result.focusEnabled ? show : hide;
     aRestrictedSites.forEach((url) => {
       let li = document.createElement("li");
       let liText = document.createTextNode(url);
