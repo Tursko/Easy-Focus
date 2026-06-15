@@ -194,7 +194,7 @@ body.focus {
 #clock {
   font-size: 80px;
   font-weight: 200;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   color: #fafafa;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -209,15 +209,14 @@ body.focus {
 }
 
 .session-label {
-  font-size: 13px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   color: #3f3f46;
 }
 
 .session-label::after {
-  content: " ·";
+  content: " —";
 }
 
 #sessionTime {
@@ -225,6 +224,20 @@ body.focus {
   font-weight: 600;
   color: #71717a;
   font-variant-numeric: tabular-nums;
+}
+
+#sessionDiv {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#popupSessionTime {
+  font-size: 28px;
+  font-weight: 600;
+  color: #a1a1aa;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .focus-info {

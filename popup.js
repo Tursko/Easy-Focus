@@ -17,6 +17,47 @@ const addUrlBtn = document.getElementById("addUrlBtn");
 const listDiv = document.getElementById("listDiv");
 const ulUrls = document.getElementById("ulUrls");
 
+const sessionDiv = document.getElementById("sessionDiv");
+const popupSessionTime = document.getElementById("popupSessionTime");
+
+let sessionStart = null;
+let sessionInterval = null;
+
+function formatElapsed(ms) {
+  let totalSeconds = Math.floor(ms / 1000);
+  let hours = Math.floor(totalSeconds / 3600);
+  let minutes = Math.floor((totalSeconds % 3600) / 60);
+  let seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${hours}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
+  }
+  return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
+}
+
+function startSessionTimer() {
+  chrome.storage.local.get("focusSessionStart").then((result) => {
+    sessionStart = result.focusSessionStart ? new Date(result.focusSessionStart) : null;
+    if (sessionInterval) clearInterval(sessionInterval);
+    sessionInterval = setInterval(() => {
+      if (sessionStart) {
+        popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+      }
+    }, 1000);
+    if (sessionStart) {
+      popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+    }
+  });
+}
+
+function stopSessionTimer() {
+  if (sessionInterval) {
+    clearInterval(sessionInterval);
+    sessionInterval = null;
+  }
+  sessionStart = null;
+  popupSessionTime.textContent = "0m 00s";
+}
+
 /*-------------------- Popup Load --------------------*/
 function popupLoad() {
   chrome.storage.local.get("focusEnabled").then((result) => {
@@ -77,17 +118,21 @@ function hidePopupElements() {
   enableFocusBtn.style.display = hide;
   disableFocusBtn.style.display = show;
   addCurrentSiteBtn.style.display = show;
+  sessionDiv.style.display = show;
   inputDiv.style.display = hide;
   listDiv.style.display = hide;
   ulUrls.style.display = hide;
+  startSessionTimer();
 }
 
 function showPopupElements() {
   enableFocusBtn.style.display = show;
   disableFocusBtn.style.display = hide;
   addCurrentSiteBtn.style.display = hide;
+  sessionDiv.style.display = hide;
   inputDiv.style.display = show;
   ulUrls.style.display = show;
+  stopSessionTimer();
   renderUrlList();
 }
 
