@@ -3,6 +3,8 @@ const sessionTimeEl = document.getElementById("sessionTime");
 const sessionBlockEl = document.querySelector(".session-block");
 
 let sessionStart = null;
+let pauseStart = null;
+let totalPausedTime = 0;
 
 function formatElapsed(ms) {
   let totalSeconds = Math.floor(ms / 1000);
@@ -30,17 +32,42 @@ function tick() {
     minute: "2-digit",
   });
   if (sessionStart) {
-    sessionTimeEl.textContent = formatElapsed(now - sessionStart);
+    let elapsed;
+    if (pauseStart) {
+      elapsed = new Date() - sessionStart - totalPausedTime;
+    } else {
+      elapsed = now - sessionStart - totalPausedTime;
+    }
+    if (elapsed > 0) {
+      sessionTimeEl.textContent = formatElapsed(elapsed);
+    } else {
+      sessionTimeEl.textContent = "0m 00s";
+    }
+  }
+}
+
+function pauseSession() {
+  pauseStart = new Date();
+}
+
+function resumeSession() {
+  if (pauseStart) {
+    totalPausedTime += new Date() - pauseStart;
+    pauseStart = null;
   }
 }
 
 chrome.storage.local
-  .get(["focusSessionStart", "focusEnabled"])
+  .get(["focusSessionStart", "focusEnabled", "focusSessionPaused"])
   .then((result) => {
     setSessionVisible(!!result.focusEnabled);
     sessionStart = result.focusSessionStart
       ? new Date(result.focusSessionStart)
       : null;
+    const isPaused = result.focusSessionPaused;
+    if (isPaused) {
+      pauseSession();
+    }
     tick();
     setInterval(tick, 1000);
   });
@@ -54,5 +81,16 @@ chrome.storage.onChanged.addListener((changes, area) => {
     sessionStart = changes.focusSessionStart.newValue
       ? new Date(changes.focusSessionStart.newValue)
       : null;
+    if (!pauseStart) {
+      totalPausedTime = 0;
+    }
+  }
+  if ("focusSessionPaused" in changes) {
+    const isPaused = changes.focusSessionPaused.newValue;
+    if (isPaused) {
+      pauseSession();
+    } else {
+      resumeSession();
+    }
   }
 });

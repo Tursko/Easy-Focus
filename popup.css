@@ -98,9 +98,15 @@ body {
   border-radius: 4px;
 }
 
-.btn-remove:hover {
-  background-color: #27272a;
-  color: #ef4444;
+.btn-red {
+  width: 100%;
+  padding: 11px 18px;
+  background-color: #ef4444;
+  color: #fafafa;
+}
+
+.btn-red:hover {
+  background-color: #dc2626;
 }
 
 /* Input row */
