@@ -19,10 +19,14 @@ const ulUrls = document.getElementById("ulUrls");
 
 const sessionDiv = document.getElementById("sessionDiv");
 const popupSessionTime = document.getElementById("popupSessionTime");
+const pauseResumeBtn = document.getElementById("pauseResumeBtn");
 const resetTimerBtn = document.getElementById("resetTimerBtn");
 
 let sessionStart = null;
+let pausedElapsedTime = null;
 let sessionInterval = null;
+let isPaused = false;
+let pauseTime = null;
 
 function formatElapsed(ms) {
   let totalSeconds = Math.floor(ms / 1000);
@@ -38,18 +42,38 @@ function formatElapsed(ms) {
   return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
 }
 
+function updateSessionDisplay() {
+  if (isPaused && pausedElapsedTime !== null) {
+    popupSessionTime.textContent = "Paused - " + formatElapsed(pausedElapsedTime);
+  } else if (sessionStart) {
+    popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+  }
+}
+
 function startSessionTimer() {
-  chrome.storage.local.get("focusSessionStart").then((result) => {
+  chrome.storage.local.get(["focusSessionStart", "sessionPaused", "pauseElapsedTime", "pauseStartTime"]).then((result) => {
     sessionStart = result.focusSessionStart ? new Date(result.focusSessionStart) : null;
-    if (sessionInterval) clearInterval(sessionInterval);
-    sessionInterval = setInterval(() => {
-      if (sessionStart) {
-        popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+    if (result.sessionPaused) {
+      isPaused = true;
+      pauseTime = result.pauseStartTime ? new Date(result.pauseStartTime) : new Date();
+      if (result.pauseElapsedTime !== undefined) {
+        pausedElapsedTime = result.pauseElapsedTime;
+      } else if (sessionStart) {
+        pausedElapsedTime = pauseTime - sessionStart;
+      } else {
+        pausedElapsedTime = 0;
       }
-    }, 1000);
-    if (sessionStart) {
-      popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+      pauseResumeBtn.textContent = "Resume";
+    } else {
+      isPaused = false;
+      pausedElapsedTime = null;
+      pauseResumeBtn.textContent = "Pause";
     }
+    if (sessionInterval) clearInterval(sessionInterval);
+    sessionInterval = setInterval(updateSessionDisplay, 1000);
+    updateSessionDisplay();
+    pauseResumeBtn.style.display = "block";
+    resetTimerBtn.style.display = "block";
   });
 }
 
@@ -59,8 +83,12 @@ function stopSessionTimer() {
     sessionInterval = null;
   }
   sessionStart = null;
+  pausedElapsedTime = null;
+  isPaused = false;
+  pauseTime = null;
   popupSessionTime.textContent = "0m 00s";
   resetTimerBtn.style.display = "none";
+  pauseResumeBtn.style.display = "none";
 }
 
 /*-------------------- Popup Load --------------------*/
@@ -84,15 +112,18 @@ function popupLoad() {
 /*-------------------- Focus Mode --------------------*/
 function enableFocusMode() {
   chrome.storage.local
-    .set({ focusEnabled: true, focusSessionStart: new Date().toISOString() })
+    .set({ focusEnabled: true, focusSessionStart: new Date().toISOString(), sessionPaused: false, pauseStartTime: null, pauseElapsedTime: null })
     .then(() => {
+      isPaused = false;
+      pausedElapsedTime = null;
       hidePopupElements();
       refreshCurrentTab();
     });
 }
 
 function disableFocusMode() {
-  chrome.storage.local.set({ focusEnabled: false }).then(() => {
+  chrome.storage.local.set({ focusEnabled: false, sessionPaused: false, pauseStartTime: null, pauseElapsedTime: null }).then(() => {
+    stopSessionTimer();
     showPopupElements();
   });
 }
@@ -127,7 +158,6 @@ function hidePopupElements() {
   inputDiv.style.display = hide;
   listDiv.style.display = hide;
   ulUrls.style.display = hide;
-  resetTimerBtn.style.display = show;
   startSessionTimer();
 }
 
@@ -255,11 +285,73 @@ disableFocusBtn.addEventListener("mousedown", startHold);
 disableFocusBtn.addEventListener("mouseup", resetHold);
 disableFocusBtn.addEventListener("mouseleave", resetHold);
 
+/*-------------------- Pause/Resume Button --------------------*/
+
+function togglePauseSession() {
+  chrome.storage.local.get(["sessionPaused", "focusSessionStart", "pauseElapsedTime", "pauseStartTime"]).then((result) => {
+    if (!result.sessionPaused) {
+      const storedSessionStart = result.focusSessionStart;
+      if (!storedSessionStart) {
+        return;
+      }
+      const currentTime = new Date();
+      const storedStartDate = new Date(storedSessionStart);
+      const elapsedAtPause = currentTime - storedStartDate;
+      
+      isPaused = true;
+      pausedElapsedTime = elapsedAtPause;
+      pauseTime = new Date();
+      sessionStart = storedStartDate;
+      
+      chrome.storage.local.set({ 
+        sessionPaused: true, 
+        pauseStartTime: pauseTime.toISOString(),
+        pauseElapsedTime: pausedElapsedTime 
+      });
+      pauseResumeBtn.textContent = "Resume";
+      updateSessionDisplay();
+    } else {
+      let frozenTime = 0;
+      if (result.pauseElapsedTime !== undefined && result.pauseElapsedTime !== null) {
+        frozenTime = result.pauseElapsedTime;
+      } else if (result.pauseStartTime && result.focusSessionStart) {
+        frozenTime = new Date(result.pauseStartTime) - new Date(result.focusSessionStart);
+      }
+      const newSessionStart = new Date() - frozenTime;
+      
+      isPaused = false;
+      sessionStart = newSessionStart;
+      pausedElapsedTime = null;
+      pauseTime = null;
+      
+      chrome.storage.local.set({ 
+        sessionPaused: false, 
+        pauseStartTime: null,
+        pauseElapsedTime: null,
+        focusSessionStart: newSessionStart.toISOString()
+      });
+      pauseResumeBtn.textContent = "Pause";
+      updateSessionDisplay();
+    }
+  });
+}
+
+pauseResumeBtn.addEventListener("click", togglePauseSession);
+
 /*-------------------- Reset Timer Button --------------------*/
 resetTimerBtn.textContent = "Reset Session";
 
 function resetSessionTimer() {
-  chrome.storage.local.set({ focusSessionStart: new Date().toISOString() }).then(() => {
+  isPaused = false;
+  pausedElapsedTime = null;
+  sessionStart = null;
+  chrome.storage.local.set({ 
+    focusSessionStart: new Date().toISOString(),
+    sessionPaused: false,
+    pauseStartTime: null,
+    pauseElapsedTime: null
+  }).then(() => {
+    pauseResumeBtn.textContent = "Pause";
     startSessionTimer();
   });
 }

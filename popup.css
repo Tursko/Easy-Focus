@@ -76,6 +76,29 @@ body {
   background-color: #3f3f46;
 }
 
+.btn-danger {
+  width: 100%;
+  padding: 11px 18px;
+  background-color: #ef4444;
+  color: #fafafa;
+}
+
+.btn-danger:hover {
+  background-color: #f85032;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-group .btn {
+  flex: 1 1 calc(50% - 4px);
+  max-width: calc(50% - 4px);
+}
+
 .btn-icon {
   padding: 8px 16px;
   background-color: #27272a;

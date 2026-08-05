@@ -3,13 +3,14 @@ const sessionTimeEl = document.getElementById("sessionTime");
 const sessionBlockEl = document.querySelector(".session-block");
 
 let sessionStart = null;
+let isPaused = false;
+let pausedElapsedTime = null;
 
 function formatElapsed(ms) {
   let totalSeconds = Math.floor(ms / 1000);
   let hours = Math.floor(totalSeconds / 3600);
   let minutes = Math.floor((totalSeconds % 3600) / 60);
   let seconds = totalSeconds % 60;
-
   if (hours >= 24) {
     return "24h+";
   }
@@ -29,18 +30,33 @@ function tick() {
     hour: "2-digit",
     minute: "2-digit",
   });
-  if (sessionStart) {
+  if (isPaused && pausedElapsedTime !== null) {
+    sessionTimeEl.textContent = "Paused - " + formatElapsed(pausedElapsedTime);
+  } else if (sessionStart) {
     sessionTimeEl.textContent = formatElapsed(now - sessionStart);
   }
 }
 
 chrome.storage.local
-  .get(["focusSessionStart", "focusEnabled"])
+  .get(["focusSessionStart", "focusEnabled", "sessionPaused", "pauseElapsedTime", "pauseStartTime"])
   .then((result) => {
     setSessionVisible(!!result.focusEnabled);
+    isPaused = result.sessionPaused || false;
     sessionStart = result.focusSessionStart
       ? new Date(result.focusSessionStart)
       : null;
+    if (isPaused) {
+      if (result.pauseElapsedTime !== undefined) {
+        pausedElapsedTime = result.pauseElapsedTime;
+      } else if (sessionStart) {
+        const pauseTime = result.pauseStartTime ? new Date(result.pauseStartTime) : new Date();
+        pausedElapsedTime = pauseTime - sessionStart;
+      } else {
+        pausedElapsedTime = 0;
+      }
+    } else {
+      pausedElapsedTime = null;
+    }
     tick();
     setInterval(tick, 1000);
   });
@@ -50,9 +66,23 @@ chrome.storage.onChanged.addListener((changes, area) => {
   if ("focusEnabled" in changes) {
     setSessionVisible(!!changes.focusEnabled.newValue);
   }
+  if ("sessionPaused" in changes) {
+    if (changes.sessionPaused.newValue) {
+      pausedElapsedTime = changes.pauseElapsedTime?.newValue ?? 0;
+    } else {
+      pausedElapsedTime = null;
+    }
+    isPaused = changes.sessionPaused.newValue;
+    tick();
+  }
   if ("focusSessionStart" in changes) {
     sessionStart = changes.focusSessionStart.newValue
       ? new Date(changes.focusSessionStart.newValue)
       : null;
+  }
+  if ("pauseElapsedTime" in changes) {
+    if (isPaused) {
+      pausedElapsedTime = changes.pauseElapsedTime.newValue ?? 0;
+    }
   }
 });
