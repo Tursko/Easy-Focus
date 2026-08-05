@@ -20,6 +20,7 @@ const ulUrls = document.getElementById("ulUrls");
 const sessionDiv = document.getElementById("sessionDiv");
 const popupSessionTime = document.getElementById("popupSessionTime");
 const resetTimerBtn = document.getElementById("resetTimerBtn");
+const pauseFocusBtn = document.getElementById("pauseFocusBtn");
 
 let sessionStart = null;
 let sessionInterval = null;
@@ -39,16 +40,21 @@ function formatElapsed(ms) {
 }
 
 function startSessionTimer() {
-  chrome.storage.local.get("focusSessionStart").then((result) => {
+  chrome.storage.local.get(["focusSessionStart", "focusPaused", "focusSessionElapsed"]).then((result) => {
+    let focusPaused = result.focusPaused ?? false;
     sessionStart = result.focusSessionStart ? new Date(result.focusSessionStart) : null;
     if (sessionInterval) clearInterval(sessionInterval);
-    sessionInterval = setInterval(() => {
+    if (focusPaused) {
+      popupSessionTime.textContent = formatElapsed(result.focusSessionElapsed ?? 0);
+    } else {
+      sessionInterval = setInterval(() => {
+        if (sessionStart) {
+          popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+        }
+      }, 1000);
       if (sessionStart) {
         popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
       }
-    }, 1000);
-    if (sessionStart) {
-      popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
     }
   });
 }
@@ -128,7 +134,11 @@ function hidePopupElements() {
   listDiv.style.display = hide;
   ulUrls.style.display = hide;
   resetTimerBtn.style.display = show;
+  pauseFocusBtn.style.display = show;
   startSessionTimer();
+  chrome.storage.local.get("focusPaused").then((result) => {
+    updatePauseButton(result.focusPaused ?? false);
+  });
 }
 
 function showPopupElements() {
@@ -259,12 +269,53 @@ disableFocusBtn.addEventListener("mouseleave", resetHold);
 resetTimerBtn.textContent = "Reset Session";
 
 function resetSessionTimer() {
-  chrome.storage.local.set({ focusSessionStart: new Date().toISOString() }).then(() => {
+  chrome.storage.local.set({ focusSessionStart: new Date().toISOString(), focusSessionElapsed: null, focusPausedAt: null, focusPaused: false }).then(() => {
+    updatePauseButton(false);
     startSessionTimer();
   });
 }
 
 resetTimerBtn.addEventListener("click", resetSessionTimer);
+
+/*-------------------- Pause/Resume Button --------------------*/
+function updatePauseButton(focusPaused) {
+  pauseFocusBtn.innerHTML = focusPaused ? "&#9654; Resume" : "&#10074;&#10074; Pause";
+}
+
+function toggleFocusPause(focusPaused) {
+  let newPausedState = !focusPaused;
+  chrome.storage.local.set({ focusPaused: newPausedState }).then(() => {
+    updatePauseButton(newPausedState);
+    if (newPausedState) {
+      // Pausing: save elapsed time, stop timer
+      chrome.storage.local.get("focusSessionStart").then((result) => {
+        if (result.focusSessionStart) {
+          let sessionStart = new Date(result.focusSessionStart);
+          let elapsed = new Date() - sessionStart;
+          chrome.storage.local.set({ focusPausedAt: new Date().toISOString(), focusSessionElapsed: elapsed }).then(() => {
+            popupSessionTime.textContent = formatElapsed(elapsed);
+          });
+        }
+        if (sessionInterval) clearInterval(sessionInterval);
+      });
+    } else {
+      // Resuming: restore session start from elapsed time
+      chrome.storage.local.get(["focusSessionElapsed"]).then((result) => {
+        let elapsed = result.focusSessionElapsed ?? 0;
+        let newStart = new Date(Date.now() - elapsed);
+        chrome.storage.local.set({ focusSessionStart: newStart.toISOString(), focusSessionElapsed: null, focusPausedAt: null });
+        startSessionTimer();
+      });
+    }
+  });
+}
+
+pauseFocusBtn.addEventListener("click", () => {
+  chrome.storage.local.get("focusPaused").then((result) => {
+    let focusPaused = result.focusPaused ?? false;
+    toggleFocusPause(focusPaused);
+  });
+});
 
 /*-------------------- Event Listeners --------------------*/
 document.addEventListener("DOMContentLoaded", popupLoad);

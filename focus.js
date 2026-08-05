@@ -3,6 +3,8 @@ const sessionTimeEl = document.getElementById("sessionTime");
 const sessionBlockEl = document.querySelector(".session-block");
 
 let sessionStart = null;
+let focusPaused = false;
+let pausedElapsed = 0;
 
 function formatElapsed(ms) {
   let totalSeconds = Math.floor(ms / 1000);
@@ -30,17 +32,22 @@ function tick() {
     minute: "2-digit",
   });
   if (sessionStart) {
-    sessionTimeEl.textContent = formatElapsed(now - sessionStart);
+    let displayElapsed = focusPaused
+      ? pausedElapsed
+      : now - sessionStart;
+    sessionTimeEl.textContent = formatElapsed(displayElapsed);
   }
 }
 
 chrome.storage.local
-  .get(["focusSessionStart", "focusEnabled"])
+  .get(["focusSessionStart", "focusEnabled", "focusPaused", "focusSessionElapsed"])
   .then((result) => {
     setSessionVisible(!!result.focusEnabled);
     sessionStart = result.focusSessionStart
       ? new Date(result.focusSessionStart)
       : null;
+    focusPaused = result.focusPaused ?? false;
+    pausedElapsed = result.focusSessionElapsed ?? 0;
     tick();
     setInterval(tick, 1000);
   });
@@ -54,5 +61,11 @@ chrome.storage.onChanged.addListener((changes, area) => {
     sessionStart = changes.focusSessionStart.newValue
       ? new Date(changes.focusSessionStart.newValue)
       : null;
+  }
+  if ("focusPaused" in changes) {
+    focusPaused = changes.focusPaused.newValue ?? false;
+  }
+  if ("focusSessionElapsed" in changes) {
+    pausedElapsed = changes.focusSessionElapsed.newValue ?? 0;
   }
 });

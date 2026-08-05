@@ -76,6 +76,26 @@ body {
   background-color: #3f3f46;
 }
 
+.btn-danger {
+  color: #fafafa;
+  background-color: #ef4444;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626;
+}
+
+/* Button row */
+.button-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.button-row .btn {
+  flex: 1;
+}
+
 .btn-icon {
   padding: 8px 16px;
   background-color: #27272a;
