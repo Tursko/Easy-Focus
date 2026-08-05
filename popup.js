@@ -20,9 +20,13 @@ const ulUrls = document.getElementById("ulUrls");
 const sessionDiv = document.getElementById("sessionDiv");
 const popupSessionTime = document.getElementById("popupSessionTime");
 const resetTimerBtn = document.getElementById("resetTimerBtn");
+const pauseResumeBtn = document.getElementById("pauseResumeBtn");
 
 let sessionStart = null;
 let sessionInterval = null;
+let isPaused = false;
+let totalPausedTime = 0;
+let pauseStartTime = null;
 
 function formatElapsed(ms) {
   let totalSeconds = Math.floor(ms / 1000);
@@ -39,16 +43,37 @@ function formatElapsed(ms) {
 }
 
 function startSessionTimer() {
-  chrome.storage.local.get("focusSessionStart").then((result) => {
+  chrome.storage.local.get(["focusSessionStart", "isPaused", "totalPausedTime", "pauseStartTime"]).then((result) => {
     sessionStart = result.focusSessionStart ? new Date(result.focusSessionStart) : null;
+    isPaused = result.isPaused || false;
+    totalPausedTime = result.totalPausedTime || 0;
+    pauseStartTime = result.pauseStartTime || null;
+
+    pauseResumeBtn.textContent = isPaused ? "▶ Resume" : "⏸ Pause";
+
     if (sessionInterval) clearInterval(sessionInterval);
     sessionInterval = setInterval(() => {
       if (sessionStart) {
-        popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+        const now = Date.now();
+        let elapsed = now - sessionStart.getTime();
+
+        if (isPaused && pauseStartTime) {
+          elapsed -= (now - pauseStartTime);
+        }
+        elapsed -= totalPausedTime;
+
+        popupSessionTime.textContent = formatElapsed(elapsed);
       }
     }, 1000);
+
     if (sessionStart) {
-      popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
+      const now = Date.now();
+      let elapsed = now - sessionStart.getTime();
+      if (isPaused && pauseStartTime) {
+        elapsed -= (now - pauseStartTime);
+      }
+      elapsed -= totalPausedTime;
+      popupSessionTime.textContent = formatElapsed(elapsed);
     }
   });
 }
@@ -59,6 +84,9 @@ function stopSessionTimer() {
     sessionInterval = null;
   }
   sessionStart = null;
+  isPaused = false;
+  totalPausedTime = 0;
+  pauseStartTime = null;
   popupSessionTime.textContent = "0m 00s";
   resetTimerBtn.style.display = "none";
 }
@@ -84,7 +112,13 @@ function popupLoad() {
 /*-------------------- Focus Mode --------------------*/
 function enableFocusMode() {
   chrome.storage.local
-    .set({ focusEnabled: true, focusSessionStart: new Date().toISOString() })
+    .set({ 
+      focusEnabled: true, 
+      focusSessionStart: new Date().toISOString(),
+      isPaused: false,
+      totalPausedTime: 0,
+      pauseStartTime: null,
+    })
     .then(() => {
       hidePopupElements();
       refreshCurrentTab();
@@ -255,11 +289,46 @@ disableFocusBtn.addEventListener("mousedown", startHold);
 disableFocusBtn.addEventListener("mouseup", resetHold);
 disableFocusBtn.addEventListener("mouseleave", resetHold);
 
+/*-------------------- Pause/Resume Timer --------------------*/
+function togglePause() {
+  isPaused = !isPaused;
+  const now = Date.now();
+
+  if (isPaused) {
+    pauseStartTime = now;
+    pauseResumeBtn.textContent = "▶ Resume";
+  } else {
+    if (pauseStartTime) {
+      totalPausedTime += (now - pauseStartTime);
+      pauseStartTime = null;
+    }
+    pauseResumeBtn.textContent = "⏸ Pause";
+  }
+
+  chrome.storage.local.set({
+    isPaused: isPaused,
+    totalPausedTime: totalPausedTime,
+    pauseStartTime: pauseStartTime,
+  });
+}
+
+pauseResumeBtn.addEventListener("click", togglePause);
+
 /*-------------------- Reset Timer Button --------------------*/
 resetTimerBtn.textContent = "Reset Session";
 
 function resetSessionTimer() {
-  chrome.storage.local.set({ focusSessionStart: new Date().toISOString() }).then(() => {
+  isPaused = false;
+  totalPausedTime = 0;
+  pauseStartTime = null;
+  pauseResumeBtn.textContent = "⏸ Pause";
+
+  chrome.storage.local.set({
+    focusSessionStart: new Date().toISOString(),
+    isPaused: false,
+    totalPausedTime: 0,
+    pauseStartTime: null,
+  }).then(() => {
     startSessionTimer();
   });
 }

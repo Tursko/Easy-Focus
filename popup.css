@@ -72,9 +72,30 @@ body {
   user-select: none;
 }
 
+.btn-danger {
+  background-color: #ef4444 !important;
+  color: #fafafa !important;
+  border-color: #dc2626 !important;
+}
+
+.btn-danger:hover {
+  background-color: #dc2626 !important;
+}
+
 .btn-secondary:hover {
   background-color: #3f3f46;
 }
+
+.button-row {
+  display: flex;
+  gap: 8px;
+}
+
+.button-row .btn {
+  width: auto;
+  flex: 1;
+}
+
 
 .btn-icon {
   padding: 8px 16px;
