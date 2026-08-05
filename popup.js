@@ -19,6 +19,7 @@ const ulUrls = document.getElementById("ulUrls");
 
 const sessionDiv = document.getElementById("sessionDiv");
 const popupSessionTime = document.getElementById("popupSessionTime");
+const resetTimerBtn = document.getElementById("resetTimerBtn");
 
 let sessionStart = null;
 let sessionInterval = null;
@@ -28,6 +29,9 @@ function formatElapsed(ms) {
   let hours = Math.floor(totalSeconds / 3600);
   let minutes = Math.floor((totalSeconds % 3600) / 60);
   let seconds = totalSeconds % 60;
+  if (hours >= 24) {
+    return "24h+";
+  }
   if (hours > 0) {
     return `${hours}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
   }
@@ -56,6 +60,7 @@ function stopSessionTimer() {
   }
   sessionStart = null;
   popupSessionTime.textContent = "0m 00s";
+  resetTimerBtn.style.display = "none";
 }
 
 /*-------------------- Popup Load --------------------*/
@@ -122,6 +127,7 @@ function hidePopupElements() {
   inputDiv.style.display = hide;
   listDiv.style.display = hide;
   ulUrls.style.display = hide;
+  resetTimerBtn.style.display = show;
   startSessionTimer();
 }
 
@@ -248,6 +254,17 @@ function resetHold() {
 disableFocusBtn.addEventListener("mousedown", startHold);
 disableFocusBtn.addEventListener("mouseup", resetHold);
 disableFocusBtn.addEventListener("mouseleave", resetHold);
+
+/*-------------------- Reset Timer Button --------------------*/
+resetTimerBtn.textContent = "Reset Session";
+
+function resetSessionTimer() {
+  chrome.storage.local.set({ focusSessionStart: new Date().toISOString() }).then(() => {
+    startSessionTimer();
+  });
+}
+
+resetTimerBtn.addEventListener("click", resetSessionTimer);
 
 /*-------------------- Event Listeners --------------------*/
 document.addEventListener("DOMContentLoaded", popupLoad);
