@@ -29,6 +29,9 @@ function formatElapsed(ms) {
   let hours = Math.floor(totalSeconds / 3600);
   let minutes = Math.floor((totalSeconds % 3600) / 60);
   let seconds = totalSeconds % 60;
+  if (hours >= 24) {
+    return "24h+";
+  }
   if (hours > 0) {
     return `${hours}h ${String(minutes).padStart(2, "0")}m ${String(seconds).padStart(2, "0")}s`;
   }
