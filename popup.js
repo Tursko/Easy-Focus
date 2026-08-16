@@ -134,7 +134,7 @@ function refreshCurrentTab() {
       let currentTab = tabs[0];
       getRestrictedSites().then((aRestrictedSites) => {
         aRestrictedSites.forEach((url) => {
-          let regex = new RegExp(url, "g");
+          let regex = new RegExp(url, "gi");
           if (currentTab.url.search(regex) >= 0) {
             chrome.tabs.update(currentTab.id, { url: redirectUrl });
           }
@@ -176,7 +176,11 @@ function showPopupElements() {
 function addUrl(url = null) {
   let siteToAdd = url ?? inputUrl.value;
 
-  if (siteToAdd != "" && !aRestrictedSites.includes(siteToAdd)) {
+  let bAlreadyAdded = aRestrictedSites.some(
+    (site) => site.toLowerCase() === siteToAdd.toLowerCase()
+  );
+
+  if (siteToAdd != "" && !bAlreadyAdded) {
     aRestrictedSites.push(siteToAdd);
   }
 

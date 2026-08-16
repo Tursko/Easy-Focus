@@ -21,7 +21,7 @@ function redirectTab(tab) {
                 if (focusEnabled && tab.url)
                 {
                     aRestrictedSites.forEach(url => {
-                        let regex = new RegExp(url, "g")
+                        let regex = new RegExp(url, "gi")
                         if (tab.url.search(regex) >= 0) {
                             chrome.tabs.update(tab.id, { url: redirectUrl });
                         }
