@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+:root {
+  --red: #7f1d1d;
+  --red-hover: #991b1b;
+}
+
 body {
   background-color: #09090b;
   color: #fafafa;
@@ -66,7 +71,7 @@ body {
   border: 1px solid #3f3f46;
   background-image: linear-gradient(
     to right,
-    #ef4444 var(--hold-progress, 0%),
+    var(--red) var(--hold-progress, 0%),
     transparent var(--hold-progress, 0%)
   );
   user-select: none;
@@ -74,6 +79,18 @@ body {
 
 .btn-secondary:hover {
   background-color: #3f3f46;
+}
+
+.btn-danger {
+  width: 100%;
+  padding: 11px 18px;
+  background-color: var(--red);
+  color: #fafafa;
+  border: 1px solid var(--red-hover);
+}
+
+.btn-danger:hover {
+  background-color: var(--red-hover);
 }
 
 .btn-icon {
@@ -100,7 +117,7 @@ body {
 
 .btn-remove:hover {
   background-color: #27272a;
-  color: #ef4444;
+  color: var(--red-hover);
 }
 
 /* Input row */
@@ -226,10 +243,21 @@ body.focus {
   font-variant-numeric: tabular-nums;
 }
 
+#pausedLabel {
+  font-size: 20px;
+  font-weight: 600;
+  color: #52525b;
+}
+
 #sessionDiv {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.session-btn-row {
+  display: flex;
+  gap: 8px;
 }
 
 #popupSessionTime {
