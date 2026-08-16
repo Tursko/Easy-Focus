@@ -20,9 +20,12 @@ const ulUrls = document.getElementById("ulUrls");
 const sessionDiv = document.getElementById("sessionDiv");
 const popupSessionTime = document.getElementById("popupSessionTime");
 const resetTimerBtn = document.getElementById("resetTimerBtn");
+const pauseResumeBtn = document.getElementById("pauseResumeBtn");
 
 let sessionStart = null;
 let sessionInterval = null;
+let sessionAccumulatedMs = 0;
+let sessionPaused = false;
 
 function formatElapsed(ms) {
   let totalSeconds = Math.floor(ms / 1000);
@@ -38,19 +41,38 @@ function formatElapsed(ms) {
   return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
 }
 
+// Paused or not started -> just the accumulated time.
+// Running -> accumulated plus the time since the current segment started.
+function computeElapsedMs(accumulatedMs, start, paused) {
+  let acc = accumulatedMs || 0;
+  if (paused || !start) {
+    return acc;
+  }
+  return acc + (Date.now() - start.getTime());
+}
+
+function renderSessionTime() {
+  let elapsed = formatElapsed(computeElapsedMs(sessionAccumulatedMs, sessionStart, sessionPaused));
+  popupSessionTime.textContent = sessionPaused ? `${elapsed} (Paused)` : elapsed;
+}
+
+function renderPauseButton() {
+  pauseResumeBtn.textContent = sessionPaused ? "▶ Resume" : "⏸ Pause";
+}
+
 function startSessionTimer() {
-  chrome.storage.local.get("focusSessionStart").then((result) => {
-    sessionStart = result.focusSessionStart ? new Date(result.focusSessionStart) : null;
-    if (sessionInterval) clearInterval(sessionInterval);
-    sessionInterval = setInterval(() => {
-      if (sessionStart) {
-        popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
-      }
-    }, 1000);
-    if (sessionStart) {
-      popupSessionTime.textContent = formatElapsed(new Date() - sessionStart);
-    }
-  });
+  chrome.storage.local
+    .get(["focusSessionStart", "focusSessionAccumulatedMs", "focusSessionPaused"])
+    .then((result) => {
+      sessionStart = result.focusSessionStart ? new Date(result.focusSessionStart) : null;
+      sessionAccumulatedMs = result.focusSessionAccumulatedMs || 0;
+      sessionPaused = !!result.focusSessionPaused;
+      renderPauseButton();
+      if (sessionInterval) clearInterval(sessionInterval);
+      // The interval keeps running while paused, but the rendered value stays frozen.
+      sessionInterval = setInterval(renderSessionTime, 1000);
+      renderSessionTime();
+    });
 }
 
 function stopSessionTimer() {
@@ -59,8 +81,11 @@ function stopSessionTimer() {
     sessionInterval = null;
   }
   sessionStart = null;
+  sessionAccumulatedMs = 0;
+  sessionPaused = false;
   popupSessionTime.textContent = "0m 00s";
-  resetTimerBtn.style.display = "none";
+  resetTimerBtn.style.display = hide;
+  pauseResumeBtn.style.display = hide;
 }
 
 /*-------------------- Popup Load --------------------*/
@@ -84,7 +109,12 @@ function popupLoad() {
 /*-------------------- Focus Mode --------------------*/
 function enableFocusMode() {
   chrome.storage.local
-    .set({ focusEnabled: true, focusSessionStart: new Date().toISOString() })
+    .set({
+      focusEnabled: true,
+      focusSessionStart: new Date().toISOString(),
+      focusSessionAccumulatedMs: 0,
+      focusSessionPaused: false,
+    })
     .then(() => {
       hidePopupElements();
       refreshCurrentTab();
@@ -128,6 +158,7 @@ function hidePopupElements() {
   listDiv.style.display = hide;
   ulUrls.style.display = hide;
   resetTimerBtn.style.display = show;
+  pauseResumeBtn.style.display = show;
   startSessionTimer();
 }
 
@@ -256,15 +287,48 @@ disableFocusBtn.addEventListener("mouseup", resetHold);
 disableFocusBtn.addEventListener("mouseleave", resetHold);
 
 /*-------------------- Reset Timer Button --------------------*/
-resetTimerBtn.textContent = "Reset Session";
+resetTimerBtn.textContent = "↺ Reset";
 
 function resetSessionTimer() {
-  chrome.storage.local.set({ focusSessionStart: new Date().toISOString() }).then(() => {
-    startSessionTimer();
-  });
+  chrome.storage.local
+    .set({
+      focusSessionStart: new Date().toISOString(),
+      focusSessionAccumulatedMs: 0,
+      focusSessionPaused: false,
+    })
+    .then(() => {
+      startSessionTimer();
+    });
 }
 
 resetTimerBtn.addEventListener("click", resetSessionTimer);
+
+/*-------------------- Pause / Resume Button --------------------*/
+function togglePauseResume() {
+  // Re-read from storage rather than trusting the in-memory copy, which another
+  // popup or a reset may have made stale.
+  chrome.storage.local
+    .get(["focusSessionStart", "focusSessionAccumulatedMs", "focusSessionPaused"])
+    .then((result) => {
+      if (result.focusSessionPaused) {
+        return chrome.storage.local.set({
+          focusSessionStart: new Date().toISOString(),
+          focusSessionPaused: false,
+        });
+      }
+
+      let start = result.focusSessionStart ? new Date(result.focusSessionStart) : null;
+      return chrome.storage.local.set({
+        focusSessionAccumulatedMs: computeElapsedMs(result.focusSessionAccumulatedMs, start, false),
+        focusSessionPaused: true,
+      });
+    })
+    .then(() => {
+      startSessionTimer();
+    });
+}
+
+pauseResumeBtn.addEventListener("click", togglePauseResume);
 
 /*-------------------- Event Listeners --------------------*/
 document.addEventListener("DOMContentLoaded", popupLoad);
