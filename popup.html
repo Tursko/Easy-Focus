@@ -13,13 +13,24 @@
         <button id="enableFocusBtn" class="btn btn-primary">Enable Focus Mode</button>
         <button id="disableFocusBtn" class="btn btn-secondary" style="display:none">Hold to Disable</button>
         <button id="addCurrentSiteBtn" class="btn btn-primary" style="display:none">Add Current Site</button>
+        <div id="sessionDiv" style="display:none">
+            <h3 class="list-title">Focus Session</h3>
+            <span id="popupSessionTime">0m 00s</span>
+            <div class="session-btn-row">
+                <button id="pauseResumeBtn" class="btn btn-secondary" style="display:none">⏸ Pause</button>
+                <button id="resetTimerBtn" class="btn btn-danger" style="display:none">↺ Reset</button>
+            </div>
+        </div>
 
         <div id="inputDiv" class="input-row">
             <input id="inputUrl" type="text" placeholder="Add distracting site...">
             <button id="addUrlBtn" class="btn btn-icon">+</button>
         </div>
 
-        <ul id="ulUrls" class="site-list"></ul>
+        <div id="listDiv">
+            <h3 class="list-title">Your distracting sites</h3>
+            <ul id="ulUrls" class="site-list"></ul>
+        </div>
     </div>
 
     <script src="popup.js"></script>
