@@ -66,7 +66,7 @@ body {
   border: 1px solid #3f3f46;
   background-image: linear-gradient(
     to right,
-    #ef4444 var(--hold-progress, 0%),
+    #991b1b var(--hold-progress, 0%),
     transparent var(--hold-progress, 0%)
   );
   user-select: none;
@@ -238,6 +238,36 @@ body.focus {
   color: #a1a1aa;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+}
+
+.session-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-small {
+  flex: 1;
+  padding: 11px 18px;
+  background-color: #27272a;
+  color: #fafafa;
+  border: 1px solid #3f3f46;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-small:hover {
+  background-color: #3f3f46;
+}
+
+.btn-danger {
+  background-color: #7f1d1d;
+  border-color: #991b1b;
+}
+
+.btn-danger:hover {
+  background-color: #991b1b;
 }
 
 .focus-info {
